@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RigTech Inspector | Tech Dashboard</title>
+  <link rel="icon" type="image/x-icon" href="static/favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'rig-blue': '#1e40af',
+            'rig-dark': '#0f172a',
+            'rig-accent': '#3b82f6',
+            'rig-success': '#10b981',
+            'rig-warning': '#f59e0b',
+          },
+          fontFamily: { 'sans': ['Inter','system-ui','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="dashboard"></tech-sidebar>
+
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <!-- Hero Section -->
+      <div class="mb-8 bg-gradient-to-r from-rig-blue to-rig-accent rounded-2xl p-6 md:p-8 text-white shadow-xl">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">Welcome, Technician Ahmed! 👋</h1>
+            <p class="text-blue-100 text-lg mb-4">Track, manage, and report your rig site inspections efficiently</p>
+            <div class="flex items-center space-x-4">
+              <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full flex items-center">
+                <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                <span id="current-date"></span>
+              </span>
+              <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full flex items-center">
+                <i data-feather="clock" class="w-4 h-4 mr-2"></i>
+                <span id="current-time"></span>
+              </span>
+            </div>
+          </div>
+          <div class="mt-4 md:mt-0">
+            <button onclick="startNewInspection()" class="bg-white text-rig-blue hover:bg-gray-100 px-6 py-3 rounded-xl font-semibold flex items-center transition-all hover:scale-105 shadow-lg">
+              <i data-feather="plus-circle" class="w-5 h-5 mr-2"></i>
+              Start New Inspection
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Today's Inspections</p>
+              <p id="stat-today-count" class="text-3xl font-bold text-rig-dark mt-2">0</p>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg">
+              <i data-feather="clipboard" class="w-6 h-6 text-rig-blue"></i>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center text-sm">
+            <span class="text-rig-success flex items-center">
+              <i data-feather="trending-up" class="w-4 h-4 mr-1"></i>
+              <span id="stat-today-delta">+0 from yesterday</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Pending Issues</p>
+              <p id="stat-pending-issues" class="text-3xl font-bold text-rig-dark mt-2">0</p>
+            </div>
+            <div class="p-3 bg-red-50 rounded-lg">
+              <i data-feather="alert-circle" class="w-6 h-6 text-red-500"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="stat-issues-progress" class="bg-rig-warning h-2 rounded-full" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Completion Rate</p>
+              <p id="stat-completion-rate" class="text-3xl font-bold text-rig-dark mt-2">0%</p>
+            </div>
+            <div class="p-3 bg-green-50 rounded-lg">
+              <i data-feather="check-circle" class="w-6 h-6 text-rig-success"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <span id="stat-completion-label" class="text-rig-success text-sm font-medium">Good</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Total Sites</p>
+              <p id="stat-total-sites" class="text-3xl font-bold text-rig-dark mt-2">12</p>
+            </div>
+            <div class="p-3 bg-purple-50 rounded-lg">
+              <i data-feather="map-pin" class="w-6 h-6 text-purple-500"></i>
+            </div>
+          </div>
+          <a href="sites.html" class="mt-4 inline-flex items-center text-rig-blue text-sm font-medium hover:underline">
+            View all sites <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent Activities & Quick Actions -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Recent -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold text-rig-dark">Recent Inspections</h2>
+              <a href="inspections.html" class="text-rig-blue hover:underline text-sm font-medium">View All</a>
+            </div>
+            <div class="space-y-4" id="recent-inspections"></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-xl font-bold text-rig-dark mb-6">Quick Actions</h2>
+            <div class="space-y-4">
+              <a href="report.html" class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
+                <div class="p-3 bg-white rounded-lg mr-4 group-hover:scale-110 transition-transform">
+                  <i data-feather="file-text" class="w-5 h-5 text-rig-blue"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800">Generate Report</h3>
+                  <p class="text-sm text-gray-500">Create inspection summary</p>
+                </div>
+                <i data-feather="chevron-right" class="w-5 h-5 text-gray-400 ml-auto"></i>
+              </a>
+
+              <a href="issues.html" class="flex items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors group">
+                <div class="p-3 bg-white rounded-lg mr-4 group-hover:scale-110 transition-transform">
+                  <i data-feather="alert-triangle" class="w-5 h-5 text-red-500"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800">Report Issue</h3>
+                  <p class="text-sm text-gray-500">Flag equipment problems</p>
+                </div>
+                <i data-feather="chevron-right" class="w-5 h-5 text-gray-400 ml-auto"></i>
+              </a>
+
+              <a href="photos.html" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group">
+                <div class="p-3 bg-white rounded-lg mr-4 group-hover:scale-110 transition-transform">
+                  <i data-feather="camera" class="w-5 h-5 text-green-500"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800">Upload Photos</h3>
+                  <p class="text-sm text-gray-500">Document site conditions</p>
+                </div>
+                <i data-feather="chevron-right" class="w-5 h-5 text-gray-400 ml-auto"></i>
+              </a>
+
+              <a href="map.html" class="flex items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group">
+                <div class="p-3 bg-white rounded-lg mr-4 group-hover:scale-110 transition-transform">
+                  <i data-feather="map" class="w-5 h-5 text-purple-500"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-800">View Site Map</h3>
+                  <p class="text-sm text-gray-500">Check locations</p>
+                </div>
+                <i data-feather="chevron-right" class="w-5 h-5 text-gray-400 ml-auto"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipment Status -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+        <h2 class="text-xl font-bold text-rig-dark mb-6">Equipment Status</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-rig-accent transition-colors">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-800">Drill Rig #D-104</h3>
+                <div class="flex items-center mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                    Operational
+                  </span>
+                </div>
+              </div>
+              <i data-feather="tool" class="w-6 h-6 text-gray-400"></i>
+            </div>
+            <p class="text-sm text-gray-500 mt-3">Last inspected: Today, 09:30 AM</p>
+          </div>
+
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-rig-accent transition-colors">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-800">Generator G-205</h3>
+                <div class="flex items-center mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                    Maintenance Due
+                  </span>
+                </div>
+              </div>
+              <i data-feather="battery" class="w-6 h-6 text-gray-400"></i>
+            </div>
+            <p class="text-sm text-gray-500 mt-3">Due in: 3 days</p>
+          </div>
+
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-rig-accent transition-colors">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-800">Safety System S-001</h3>
+                <div class="flex items-center mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <span class="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                    Requires Attention
+                  </span>
+                </div>
+              </div>
+              <i data-feather="shield" class="w-6 h-6 text-gray-400"></i>
+            </div>
+            <p class="text-sm text-gray-500 mt-3">Issue: Pressure sensor fault</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <tech-footer></tech-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

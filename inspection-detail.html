@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Inspection Detail</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="inspections"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <a href="inspections.html" class="inline-flex items-center text-rig-blue hover:underline mb-4"><i data-feather="arrow-left" class="w-4 h-4 mr-1"></i> Back to list</a>
+      <div id="container" class="bg-white border border-gray-200 rounded-xl p-6"></div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const K='rt_inspections';
+    function r(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch{return []}}
+    function w(v){localStorage.setItem(K, JSON.stringify(v))}
+    function qs(k){return new URLSearchParams(location.search).get(k)}
+    async function load(){
+      const id=qs('id'); const c=document.getElementById('container');
+      c.innerHTML='<div class="p-4 text-gray-500"><i data-feather="loader" class="w-4 h-4 mr-1 inline animate-spin"></i> Loading...</div>';
+      let item=r().find(i=> String(i.id)===String(id));
+      if(!item && /^\d+$/.test(id)){
+        try{ const res=await fetch('https://jsonplaceholder.typicode.com/posts/'+id); const d=await res.json(); item={ id:d.id, site:'Remote Site '+d.id, equipment:'Equipment '+d.id, status:'Pending', date:new Date().toISOString(), notes:d.title }; }catch{}
+      }
+      if(!item){ c.innerHTML='<div class="p-6 text-red-600">Inspection not found.</div>'; return; }
+      c.innerHTML=`
+        <div class="flex items-start justify-between">
+          <div>
+            <h1 class="text-2xl font-bold">${item.site} – ${item.equipment}</h1>
+            <div class="text-gray-500">${new Date(item.date).toLocaleString()}</div>
+          </div>
+          <span class="px-3 py-1 rounded ${item.status==='Completed'?'bg-green-100 text-green-700':item.status==='In Progress'?'bg-yellow-100 text-yellow-700':'bg-gray-100 text-gray-700'}">${item.status}</span>
+        </div>
+        <div class="mt-6">
+          <h2 class="font-semibold mb-2">Notes</h2>
+          <p class="text-gray-700 whitespace-pre-line">${item.notes||'—'}</p>
+        </div>
+        <div class="mt-6 flex items-center gap-3">
+          <button id="mark-complete" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"><i data-feather="check" class="inline w-4 h-4 mr-1"></i> Mark Completed</button>
+          <button id="delete" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"><i data-feather="trash-2" class="inline w-4 h-4 mr-1"></i> Delete</button>
+        </div>`;
+      if (window.feather) feather.replace();
+      document.getElementById('mark-complete').addEventListener('click',()=>{
+        const list=r(); const idx=list.findIndex(i=> String(i.id)===String(id)); if(idx>=0){ list[idx].status='Completed'; w(list); location.reload(); }
+      });
+      document.getElementById('delete').addEventListener('click',()=>{
+        const list=r().filter(i=> String(i.id)!==String(id)); w(list); window.location.href='inspections.html';
+      });
+    }
+    document.addEventListener('DOMContentLoaded', load);
+  </script>
+</body></html>

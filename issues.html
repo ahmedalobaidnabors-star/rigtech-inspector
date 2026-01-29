@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Issues</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="issues"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <form id="issue-form" class="bg-white border border-gray-200 rounded-xl p-6">
+          <h1 class="text-xl font-bold mb-4">Report Issue</h1>
+          <div class="space-y-3">
+            <div><label class="block text-sm mb-1">Site</label><input name="site" required class="w-full px-3 py-2 border rounded-lg"/></div>
+            <div><label class="block text-sm mb-1">Equipment</label><input name="equipment" required class="w-full px-3 py-2 border rounded-lg"/></div>
+            <div><label class="block text-sm mb-1">Severity</label><select name="severity" class="w-full px-3 py-2 border rounded-lg"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
+            <div><label class="block text-sm mb-1">Description</label><textarea name="description" rows="4" class="w-full px-3 py-2 border rounded-lg"></textarea></div>
+            <div class="pt-2"><button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"><i data-feather="alert-triangle" class="inline w-4 h-4 mr-1"></i> Submit Issue</button></div>
+          </div>
+        </form>
+        <div class="bg-white border border-gray-200 rounded-xl p-6">
+          <h2 class="text-xl font-bold mb-4">Open Issues</h2>
+          <div id="issues-list" class="divide-y divide-gray-200"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const K='rt_issues';
+    function r(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch{return []}}
+    function w(v){localStorage.setItem(K, JSON.stringify(v))}
+    function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+    function render(){
+      const c=document.getElementById('issues-list');
+      const list=r().filter(i=> i.status!=='Closed').sort((a,b)=> new Date(b.date)-new Date(a.date));
+      c.innerHTML='';
+      if(!list.length) c.innerHTML='<div class="p-4 text-gray-500">No open issues.</div>';
+      list.forEach(i=>{
+        const row=document.createElement('div');
+        row.className='p-4 flex items-center justify-between hover:bg-gray-50';
+        const color=i.severity==='Critical'?'bg-red-100 text-red-700':i.severity==='High'?'bg-orange-100 text-orange-700':i.severity==='Medium'?'bg-yellow-100 text-yellow-700':'bg-gray-100 text-gray-700';
+        row.innerHTML=`
+          <div>
+            <div class="font-medium">${i.site} – ${i.equipment}</div>
+            <div class="text-sm text-gray-500">${new Date(i.date).toLocaleString()}</div>
+            <div class="text-sm text-gray-700 mt-1">${i.description||'—'}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs px-2 py-1 rounded ${color}">${i.severity}</span>
+            <button data-id="${i.id}" class="close px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700">Close</button>
+          </div>`;
+        c.appendChild(row);
+      });
+      if (window.feather) feather.replace();
+      document.querySelectorAll('.close').forEach(btn=>btn.addEventListener('click',e=>{
+        const id=e.currentTarget.getAttribute('data-id');
+        const list=r(); const idx=list.findIndex(x=>x.id===id); if(idx>=0){ list[idx].status='Closed'; w(list); render(); }
+      }));
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      if (window.feather) feather.replace();
+      render();
+      document.getElementById('issue-form').addEventListener('submit',(e)=>{
+        e.preventDefault();
+        const data=Object.fromEntries(new FormData(e.target).entries());
+        const issue={ id:id(), site:data.site, equipment:data.equipment, severity:data.severity, description:data.description, status:'Open', date:new Date().toISOString() };
+        const list=r(); list.push(issue); w(list); e.target.reset(); render();
+      });
+    });
+  </script>
+</body></html>

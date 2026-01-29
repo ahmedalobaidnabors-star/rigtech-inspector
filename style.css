@@ -1,0 +1,6 @@
+/* Smooth scrollbar */
+* { scrollbar-width: thin; scrollbar-color: #94a3b8 transparent; }
+*::-webkit-scrollbar { height: 8px; width: 8px; }
+*::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 6px; }
+
+.sidebar-link-active { background:#e8f0ff; color:#1e40af; font-weight:600; }

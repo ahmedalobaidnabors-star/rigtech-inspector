@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Photos</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="photos"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <h1 class="text-2xl font-bold mb-6">Upload Photos</h1>
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <form id="photo-form" class="flex flex-col md:flex-row items-start md:items-center gap-3 mb-6">
+          <input type="file" id="file" accept="image/*" class="block"/>
+          <input type="text" id="caption" placeholder="Caption (optional)" class="px-3 py-2 border rounded-lg"/>
+          <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" type="submit"><i data-feather="upload-cloud" class="inline w-4 h-4 mr-1"></i> Upload</button>
+        </form>
+        <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      </div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const K='rt_photos';
+    function r(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch{return []}}
+    function w(v){localStorage.setItem(K, JSON.stringify(v))}
+    function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+    function render(){
+      const c=document.getElementById('gallery');
+      const list=r().sort((a,b)=> new Date(b.date)-new Date(a.date));
+      c.innerHTML='';
+      if(!list.length) c.innerHTML='<div class="text-gray-500">No photos yet.</div>';
+      list.forEach(p=>{
+        const card=document.createElement('div');
+        card.className='border rounded-lg overflow-hidden bg-white';
+        card.innerHTML=`
+          <img src="${p.data}" alt="${p.caption||'Photo'}" class="w-full h-40 object-cover"/>
+          <div class="p-3 text-sm flex items-center justify-between">
+            <div class="truncate">${p.caption||'—'}</div>
+            <button data-id="${p.id}" class="del text-red-600 hover:underline">Delete</button>
+          </div>`;
+        c.appendChild(card);
+      });
+      document.querySelectorAll('.del').forEach(b=>b.addEventListener('click',e=>{
+        const pid=e.currentTarget.getAttribute('data-id'); w(r().filter(x=>x.id!==pid)); render();
+      }));
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      if (window.feather) feather.replace();
+      render();
+      document.getElementById('photo-form').addEventListener('submit', (e)=>{
+        e.preventDefault(); const f=document.getElementById('file').files[0]; if(!f) return alert('Please choose an image.');
+        const cap=document.getElementById('caption').value.trim();
+        const reader=new FileReader(); reader.onload=()=>{ const list=r(); list.push({id:id(), caption:cap, data:reader.result, date:new Date().toISOString()}); w(list); e.target.reset(); render(); };
+        reader.readAsDataURL(f);
+      });
+    });
+  </script>
+</body></html>

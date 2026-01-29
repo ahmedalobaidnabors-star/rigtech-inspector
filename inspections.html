@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Inspections</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="inspections"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">All Inspections</h1>
+        <a href="new-inspection.html" class="px-3 py-2 rounded-lg bg-rig-blue text-white hover:bg-blue-700"><i data-feather="plus-circle" class="w-4 h-4 inline mr-1"></i> New Inspection</a>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-xl p-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+          <input id="search" type="text" placeholder="Search by site/equipment..." class="w-full md:w-72 px-3 py-2 border rounded-lg">
+          <select id="statusFilter" class="px-3 py-2 border rounded-lg">
+            <option value="">All Statuses</option>
+            <option>Completed</option>
+            <option>In Progress</option>
+            <option>Pending</option>
+          </select>
+        </div>
+        <div id="inspection-list" class="divide-y divide-gray-200"></div>
+      </div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const K='rt_inspections';
+    function r(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch{return []}}
+    function render(list){
+      const c=document.getElementById('inspection-list');
+      c.innerHTML='';
+      if(!list.length) c.innerHTML='<div class="p-6 text-gray-500 flex items-center"><i data-feather="info" class="w-4 h-4 mr-2"></i>No inspections found</div>';
+      list.forEach(i=>{
+        const row=document.createElement('div');
+        row.className='p-4 flex items-center justify-between hover:bg-gray-50';
+        const cls=i.status==='Completed'?'bg-green-100 text-green-700':i.status==='In Progress'?'bg-yellow-100 text-yellow-700':'bg-gray-100 text-gray-700';
+        row.innerHTML=`
+          <div>
+            <div class="font-medium text-gray-800">${i.site} – ${i.equipment}</div>
+            <div class="text-sm text-gray-500">${new Date(i.date).toLocaleString()}</div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-sm px-2 py-1 rounded ${cls}">${i.status}</span>
+            <a href="inspection-detail.html?id=${encodeURIComponent(i.id)}" class="text-rig-blue hover:text-rig-accent"><i data-feather="arrow-right" class="w-4 h-4"></i></a>
+          </div>`;
+        c.appendChild(row);
+      });
+      if (window.feather) feather.replace();
+    }
+    function filter(){
+      const q=(document.getElementById('search').value||'').toLowerCase();
+      const s=document.getElementById('statusFilter').value;
+      let list=r();
+      if(q) list=list.filter(i=> (i.site+i.equipment+(i.notes||'')).toLowerCase().includes(q));
+      if(s) list=list.filter(i=> i.status===s);
+      list=list.sort((a,b)=> new Date(b.date)-new Date(a.date));
+      render(list);
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      filter();
+      document.getElementById('search').addEventListener('input', filter);
+      document.getElementById('statusFilter').addEventListener('change', filter);
+    });
+  </script>
+</body></html>

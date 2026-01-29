@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Sites</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="sites"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <h1 class="text-2xl font-bold mb-6">Sites</h1>
+      <div id="site-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const SITES=[
+      { name:'Rig 01 – Dammam North', status:'Operational' },
+      { name:'Rig 02 – Al Khobar', status:'Operational' },
+      { name:'Rig 03 – Jubail', status:'Maintenance Due' },
+      { name:'Rig 04 – Abqaiq', status:'Operational' },
+      { name:'Rig 05 – Ras Tanura', status:'Requires Attention' },
+      { name:'Rig 06 – Qatif', status:'Operational' },
+      { name:'Rig 07 – Dhahran', status:'Operational' },
+      { name:'Rig 08 – Safwa', status:'Operational' },
+      { name:'Rig 09 – Hofuf', status:'Maintenance Due' },
+      { name:'Rig 10 – Buqayq', status:'Operational' },
+      { name:'Rig 11 – Tanajib', status:'Operational' },
+      { name:'Rig 12 – Manifa', status:'Operational' },
+    ];
+    function badge(s){ return s==='Operational'?'bg-green-100 text-green-700':s==='Maintenance Due'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'; }
+    document.addEventListener('DOMContentLoaded',()=>{
+      const c=document.getElementById('site-list');
+      SITES.forEach(s=>{
+        const card=document.createElement('div');
+        card.className='bg-white border border-gray-200 rounded-xl p-4 hover:border-rig-accent';
+        card.innerHTML=`
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="font-semibold">${s.name}</div>
+              <div class="mt-2 text-sm"><span class="px-2 py-1 rounded ${badge(s.status)}">${s.status}</span></div>
+            </div>
+            <i data-feather="map-pin" class="w-5 h-5 text-gray-400"></i>
+          </div>
+          <div class="mt-4">
+            <a href="map.html" class="text-rig-blue hover:underline">View on Map <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i></a>
+          </div>`;
+        c.appendChild(card);
+      });
+      if (window.feather) feather.replace();
+    });
+  </script>
+</body></html>

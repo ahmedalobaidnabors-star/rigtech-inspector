@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Reports</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<style>@media print{.no-print{display:none}}</style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="reports"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-2xl font-bold">Inspection Report</h1>
+        <div class="no-print">
+          <button onclick="window.print()" class="px-4 py-2 bg-rig-blue text-white rounded-lg hover:bg-blue-700 flex items-center"><i data-feather="printer" class="w-4 h-4 mr-2"></i> Print</button>
+        </div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-xl p-6">
+        <div class="no-print mb-4">
+          <label class="block text-sm mb-1">Filter by Status</label>
+          <select id="statusFilter" class="px-3 py-2 border rounded-lg">
+            <option value="">All</option>
+            <option>Completed</option>
+            <option>In Progress</option>
+            <option>Pending</option>
+          </select>
+        </div>
+        <div id="report-body"></div>
+      </div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const K='rt_inspections';
+    function r(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch{return []}}
+    function render(){
+      const s=document.getElementById('statusFilter').value; let list=r(); if(s) list=list.filter(i=>i.status===s);
+      list=list.sort((a,b)=> new Date(b.date)-new Date(a.date));
+      const c=document.getElementById('report-body');
+      c.innerHTML=`
+        <div class="mb-4 text-sm text-gray-500">Generated: ${new Date().toLocaleString()}</div>
+        <table class="w-full text-left border border-gray-200">
+          <thead class="bg-gray-50"><tr>
+            <th class="p-2 border-b">Date</th>
+            <th class="p-2 border-b">Site</th>
+            <th class="p-2 border-b">Equipment</th>
+            <th class="p-2 border-b">Status</th>
+            <th class="p-2 border-b">Notes</th>
+          </tr></thead>
+          <tbody>
+            ${list.map(i=>`<tr class="hover:bg-gray-50">
+              <td class="p-2 border-b">${new Date(i.date).toLocaleString()}</td>
+              <td class="p-2 border-b">${i.site}</td>
+              <td class="p-2 border-b">${i.equipment}</td>
+              <td class="p-2 border-b">${i.status}</td>
+              <td class="p-2 border-b">${(i.notes||'').replace(/\n/g,'<br>')}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+    document.addEventListener('DOMContentLoaded',()=>{ if (window.feather) feather.replace(); document.getElementById('statusFilter').addEventListener('change', render); render(); });
+  </script>
+</body></html>

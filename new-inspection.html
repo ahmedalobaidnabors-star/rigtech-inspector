@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | New Inspection</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="inspections"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <h1 class="text-2xl font-bold mb-6">Start New Inspection</h1>
+      <form id="form" class="bg-white border border-gray-200 rounded-xl p-6 max-w-3xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Site</label>
+            <input name="site" required class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., Rig 12 – North Field"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Equipment</label>
+            <input name="equipment" required class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., Generator G-205"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Status</label>
+            <select name="status" class="w-full px-3 py-2 border rounded-lg">
+              <option>In Progress</option>
+              <option>Completed</option>
+              <option>Pending</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Date & Time</label>
+            <input name="date" type="datetime-local" class="w-full px-3 py-2 border rounded-lg"/>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm text-gray-600 mb-1">Notes</label>
+            <textarea name="notes" rows="4" class="w-full px-3 py-2 border rounded-lg" placeholder="Observations, measurements, safety notes..."></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex items-center gap-3">
+          <button class="px-4 py-2 bg-rig-blue text-white rounded-lg hover:bg-blue-700" type="submit">
+            <i data-feather="save" class="inline w-4 h-4 mr-1"></i> Save
+          </button>
+          <a class="px-4 py-2 border rounded-lg hover:bg-gray-50" href="inspections.html">Cancel</a>
+        </div>
+      </form>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const K='rt_inspections';
+    function r(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch{return []}}
+    function w(v){localStorage.setItem(K, JSON.stringify(v))}
+    function genId(){ return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+    document.addEventListener('DOMContentLoaded',()=>{
+      if (window.feather) feather.replace();
+      const form=document.getElementById('form');
+      const dt=form.elements['date'];
+      dt.value = new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
+      form.addEventListener('submit',(e)=>{
+        e.preventDefault();
+        const data=Object.fromEntries(new FormData(form).entries());
+        const item={ id:genId(), site:data.site.trim(), equipment:data.equipment.trim(), status:data.status, date:new Date(data.date).toISOString(), notes:(data.notes||'').trim() };
+        const list=r(); list.push(item); w(list);
+        window.location.href='inspection-detail.html?id='+encodeURIComponent(item.id);
+      });
+    });
+  </script>
+</body></html>

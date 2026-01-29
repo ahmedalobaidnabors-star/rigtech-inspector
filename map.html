@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RigTech | Map</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>#map{height:70vh;border-radius:0.75rem}</style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800 min-h-screen">
+  <tech-navbar></tech-navbar>
+  <div class="flex min-h-screen pt-16">
+    <tech-sidebar active="map"></tech-sidebar>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <h1 class="text-2xl font-bold mb-4">Site Map</h1>
+      <div id="map" class="bg-white border border-gray-200"></div>
+    </main>
+  </div>
+  <tech-footer></tech-footer>
+  <script src="components/navbar.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script src="components/footer.js"></script>
+  <script>
+    const SITES=[
+      { name:'Rig 01 – Dammam North', lat:26.4207, lng:50.0888 },
+      { name:'Rig 02 – Al Khobar', lat:26.2794, lng:50.2083 },
+      { name:'Rig 03 – Jubail', lat:27.0046, lng:49.6583 },
+      { name:'Rig 04 – Abqaiq', lat:25.9344, lng:49.6686 },
+      { name:'Rig 05 – Ras Tanura', lat:26.7056, lng:50.0619 },
+      { name:'Rig 06 – Qatif', lat:26.5630, lng:50.0089 },
+      { name:'Rig 07 – Dhahran', lat:26.3024, lng:50.1133 },
+      { name:'Rig 08 – Safwa', lat:26.6495, lng:49.9552 },
+      { name:'Rig 09 – Hofuf', lat:25.3831, lng:49.5867 },
+      { name:'Rig 10 – Buqayq', lat:25.9406, lng:49.6654 },
+      { name:'Rig 11 – Tanajib', lat:27.8683, lng:48.8617 },
+      { name:'Rig 12 – Manifa', lat:27.5350, lng:48.7417 },
+    ];
+    document.addEventListener('DOMContentLoaded',()=>{
+      if (window.feather) feather.replace();
+      const map=L.map('map').setView([26.4,50.1],7);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+      SITES.forEach(s=>{ L.marker([s.lat,s.lng]).addTo(map).bindPopup(`<b>${s.name}</b>`); });
+    });
+  </script>
+</body></html>
